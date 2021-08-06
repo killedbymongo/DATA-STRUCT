@@ -5,40 +5,40 @@
 #include <time.h>
 #include <windows.h>
 
-//MAXWIDTH¡¢MAXHEIGHT¡¢INITLEN ÒÔ×Ö·û¼Ç
+//MAXWIDTHã€MAXHEIGHTã€INITLEN ä»¥å­—ç¬¦è®°
 #define MAXWIDTH (30)
 #define MAXHEIGHT MAXWIDTH
-#define INITLEN (3)  //Ì°³ÔÉßµÄ³õÊ¼³¤¶È
+#define INITLEN (3)  //è´ªåƒè›‡çš„åˆå§‹é•¿åº¦
 
-//³ÌĞòÖĞÓÃµ½µÄ¸÷ÖÖ×Ö·û£¬ÒÔ¼°ËüÃÇµÄÑÕÉ«ºÍÀàĞÍ£¨ÒÔÊı×Ö±íÊ¾£©
+//ç¨‹åºä¸­ç”¨åˆ°çš„å„ç§å­—ç¬¦ï¼Œä»¥åŠå®ƒä»¬çš„é¢œè‰²å’Œç±»å‹ï¼ˆä»¥æ•°å­—è¡¨ç¤ºï¼‰
 struct{
     char *ch;
     int color;
     char type;
 }
-charBorder = {"¡õ", 4, 1},  //±ß¿ò
-charBg = {"¡ö", 2, 2},  //±³¾°
-charSnake = {"¡ï", 0xe, 3},  //Ì°³ÔÉß½Úµã
-charFood = {"¡ñ", 0xc, 4};  //Ê³Îï
+charBorder = {"â–¡", 4, 1},  //è¾¹æ¡†
+charBg = {"â– ", 2, 2},  //èƒŒæ™¯
+charSnake = {"â˜…", 0xe, 3},  //è´ªåƒè›‡èŠ‚ç‚¹
+charFood = {"â—", 0xc, 4};  //é£Ÿç‰©
 
-//ÓÃÒ»¸ö½á¹¹ÌåÊı×é±£´æµØÍ¼ÖĞµÄ¸÷¸öµã
+//ç”¨ä¸€ä¸ªç»“æ„ä½“æ•°ç»„ä¿å­˜åœ°å›¾ä¸­çš„å„ä¸ªç‚¹
 struct{
     char type;
     int index;
 }globalMap[MAXWIDTH][MAXHEIGHT];
 
-//Ì°³ÔÉßÓĞĞ§»î¶¯·¶Î§µØÍ¼µÄË÷Òı
+//è´ªåƒè›‡æœ‰æ•ˆæ´»åŠ¨èŒƒå›´åœ°å›¾çš„ç´¢å¼•
 struct{
     int x;
     int y;
 } snakeMap[ (MAXWIDTH-2)*(MAXHEIGHT-2) ], scoresPostion;
 
-int scores = 0;  //µÃ·Ö
+int scores = 0;  //å¾—åˆ†
 int snakeMapLen = (MAXWIDTH-2)*(MAXHEIGHT-2);
-int headerIndex, tailIndex;  //ÉßÍ·ÉßÎ²¶ÔÓ¦µÄsnakeMapÖĞµÄË÷Òı£¨ÏÂ±ê£©
-HANDLE hStdin;  //¿ØÖÆÌ¨¾ä±ú
+int headerIndex, tailIndex;  //è›‡å¤´è›‡å°¾å¯¹åº”çš„snakeMapä¸­çš„ç´¢å¼•ï¼ˆä¸‹æ ‡ï¼‰
+HANDLE hStdin;  //æ§åˆ¶å°å¥æŸ„
 
-// ÉèÖÃ¹â±êÎ»ÖÃ£¬xÎªĞĞ£¬yÎªÁĞ
+// è®¾ç½®å…‰æ ‡ä½ç½®ï¼Œxä¸ºè¡Œï¼Œyä¸ºåˆ—
 void setPosition(int x, int y){
     COORD coord;
     coord.X = 2*y;
@@ -46,15 +46,15 @@ void setPosition(int x, int y){
     SetConsoleCursorPosition(hStdin, coord);
 }
 
-// ÉèÖÃÑÕÉ«
+// è®¾ç½®é¢œè‰²
 void setColor(int color){
     SetConsoleTextAttribute(hStdin, color);
 }
 
-//´´½¨Ê³Îï
+//åˆ›å»ºé£Ÿç‰©
 void createFood(){
     int index, rang, x, y;
-    //²úÉúËæ»úÊı£¬È·¶¨ snakeMap Êı×éµÄË÷Òı
+    //äº§ç”Ÿéšæœºæ•°ï¼Œç¡®å®š snakeMap æ•°ç»„çš„ç´¢å¼•
     srand((unsigned)time(NULL));
     if(tailIndex<headerIndex){
         rang = headerIndex-tailIndex-1;
@@ -75,7 +75,7 @@ void createFood(){
     globalMap[x][y].type=charFood.type;
 }
 
-//ËÀµô
+//æ­»æ‰
 void die(){
     int xCenter = MAXHEIGHT%2==0 ? MAXHEIGHT/2 : MAXHEIGHT/2+1;
     int yCenter = MAXWIDTH%2==0 ? MAXWIDTH/2 : MAXWIDTH/2+1;
@@ -88,15 +88,15 @@ void die(){
     exit(0);
 }
 
-// ÉßÒÆ¶¯
+// è›‡ç§»åŠ¨
 void move(char direction){
-    int newHeaderX, newHeaderY;  //ĞÂÉßÍ·µÄ×ø±ê
-    int newHeaderPreIndex;  //ĞÂÉßÍ·×ø±êÒÔÇ°¶ÔÓ¦µÄË÷Òı
-    int newHeaderPreX, newHeaderPreY;  //ĞÂÉßÍ·µÄË÷ÒıÒÔÇ°¶ÔÓ¦µÄ×ø±ê
-    int newHeaderPreType;  //ĞÂÉßÍ·ÒÔÇ°µÄÀàĞÍ
-    int oldTailX, oldTailY;  //ÀÏÉßÎ²×ø±ê
+    int newHeaderX, newHeaderY;  //æ–°è›‡å¤´çš„åæ ‡
+    int newHeaderPreIndex;  //æ–°è›‡å¤´åæ ‡ä»¥å‰å¯¹åº”çš„ç´¢å¼•
+    int newHeaderPreX, newHeaderPreY;  //æ–°è›‡å¤´çš„ç´¢å¼•ä»¥å‰å¯¹åº”çš„åæ ‡
+    int newHeaderPreType;  //æ–°è›‡å¤´ä»¥å‰çš„ç±»å‹
+    int oldTailX, oldTailY;  //è€è›‡å°¾åæ ‡
     // -----------------------------------------------
-    //ĞÂÉßÍ·µÄ×ø±ê
+    //æ–°è›‡å¤´çš„åæ ‡
     switch(direction){
         case 'w':
             newHeaderX = snakeMap[headerIndex].x-1;
@@ -115,48 +115,48 @@ void move(char direction){
             newHeaderY = snakeMap[headerIndex].y+1;
             break;
     }
-    //ĞÂÉßÍ·µÄË÷Òı
+    //æ–°è›‡å¤´çš„ç´¢å¼•
     headerIndex = headerIndex==0 ? snakeMapLen-1 : headerIndex-1;
     // -----------------------------------------------
-    //ĞÂÉßÍ·×ø±êÒÔÇ°¶ÔÓ¦µÄË÷Òı
+    //æ–°è›‡å¤´åæ ‡ä»¥å‰å¯¹åº”çš„ç´¢å¼•
     newHeaderPreIndex = globalMap[newHeaderX][newHeaderY].index;
-    //ĞÂÉßÍ·µÄË÷ÒıÒÔÇ°¶ÔÓ¦µÄ×ø±ê
+    //æ–°è›‡å¤´çš„ç´¢å¼•ä»¥å‰å¯¹åº”çš„åæ ‡
     newHeaderPreX = snakeMap[headerIndex].x;
     newHeaderPreY = snakeMap[headerIndex].y;
 
-    //Ë«Ïò°ó¶¨ĞÂÉßÍ·Ë÷ÒıÓë×ø±êµÄ¶ÔÓ¦¹ØÏµ
+    //åŒå‘ç»‘å®šæ–°è›‡å¤´ç´¢å¼•ä¸åæ ‡çš„å¯¹åº”å…³ç³»
     snakeMap[headerIndex].x = newHeaderX;
     snakeMap[headerIndex].y = newHeaderY;
     globalMap[newHeaderX][newHeaderY].index = headerIndex;
 
-    //Ë«Ïò°ó¶¨ÒÔÇ°µÄË÷ÒıÓë×ø±êµÄ¶ÔÓ¦¹ØÏµ
+    //åŒå‘ç»‘å®šä»¥å‰çš„ç´¢å¼•ä¸åæ ‡çš„å¯¹åº”å…³ç³»
     snakeMap[newHeaderPreIndex].x = newHeaderPreX;
     snakeMap[newHeaderPreIndex].y = newHeaderPreY;
     globalMap[newHeaderPreX][newHeaderPreY].index = newHeaderPreIndex;
 
-    //ĞÂÉßÍ·ÒÔÇ°µÄÀàĞÍ
+    //æ–°è›‡å¤´ä»¥å‰çš„ç±»å‹
     newHeaderPreType = globalMap[newHeaderX][newHeaderY].type;
-    //ÉèÖÃĞÂÉßÍ·ÀàĞÍ
+    //è®¾ç½®æ–°è›‡å¤´ç±»å‹
     globalMap[newHeaderX][newHeaderY].type = charSnake.type;
-    // ÅĞ¶ÏÊÇ·ñ³ö½ç»ò×²µ½×Ô¼º
+    // åˆ¤æ–­æ˜¯å¦å‡ºç•Œæˆ–æ’åˆ°è‡ªå·±
     if(newHeaderPreType==charBorder.type || newHeaderPreType==charSnake.type ){
         die();
     }
-    //Êä³öĞÂÉßÍ·
+    //è¾“å‡ºæ–°è›‡å¤´
     setPosition(newHeaderX, newHeaderY);
     setColor(charSnake.color);
     printf("%s", charSnake.ch);
-    //ÅĞ¶ÏÊÇ·ñ³Ôµ½Ê³Îï
-    if(newHeaderPreType==charFood.type){  //³Ôµ½Ê³Îï
+    //åˆ¤æ–­æ˜¯å¦åƒåˆ°é£Ÿç‰©
+    if(newHeaderPreType==charFood.type){  //åƒåˆ°é£Ÿç‰©
         createFood();
-        //¸ü¸Ä·ÖÊı
+        //æ›´æ”¹åˆ†æ•°
         setPosition(scoresPostion.x, scoresPostion.y);
         printf("%d", ++scores);
     }else{
-        //ÀÏÉßÎ²×ø±ê
+        //è€è›‡å°¾åæ ‡
         oldTailX = snakeMap[tailIndex].x;
         oldTailY = snakeMap[tailIndex].y;
-        //É¾³ıÉßÎ²
+        //åˆ é™¤è›‡å°¾
         setPosition(oldTailX, oldTailY);
         setColor(charBg.color);
         printf("%s", charBg.ch);
@@ -165,7 +165,7 @@ void move(char direction){
     }
 }
 
-//ÏÂ´ÎÒÆ¶¯µÄ·½Ïò
+//ä¸‹æ¬¡ç§»åŠ¨çš„æ–¹å‘
 char nextDirection(char ch, char directionOld){
     int sum = ch+directionOld;
     ch = tolower(ch);
@@ -176,36 +176,36 @@ char nextDirection(char ch, char directionOld){
     }
 }
 
-//ÔİÍ£
+//æš‚åœ
 char pause(){
     return getch();
 }
 
-// ³õÊ¼»¯
+// åˆå§‹åŒ–
 void init(){
-    // ÉèÖÃÏà¹Ø±äÁ¿
+    // è®¾ç½®ç›¸å…³å˜é‡
     int x, y, i, index;
     int xCenter = MAXHEIGHT%2==0 ? MAXHEIGHT/2 : MAXHEIGHT/2+1;
     int yCenter = MAXWIDTH%2==0 ? MAXWIDTH/2 : MAXWIDTH/2+1;
-    CONSOLE_CURSOR_INFO cci;  //¿ØÖÆÌ¨¹â±êĞÅÏ¢
+    CONSOLE_CURSOR_INFO cci;  //æ§åˆ¶å°å…‰æ ‡ä¿¡æ¯
 
-    //ÅĞ¶ÏÏà¹ØÉèÖÃÊÇ·ñºÏÀí
+    //åˆ¤æ–­ç›¸å…³è®¾ç½®æ˜¯å¦åˆç†
     if(MAXWIDTH<16){
         printf("'MAXWIDTH' is too small!");
         getch();
         exit(0);
     }
 
-    //ÉèÖÃ´°¿Ú´óĞ¡
+    //è®¾ç½®çª—å£å¤§å°
     system("mode con: cols=96 lines=32");
 
-    //Òş²Ø¹â±ê
+    //éšè—å…‰æ ‡
     hStdin = GetStdHandle(STD_OUTPUT_HANDLE);
     GetConsoleCursorInfo(hStdin, &cci);
     cci.bVisible = 0;
     SetConsoleCursorInfo(hStdin, &cci);
 
-    //´òÓ¡±³¾°
+    //æ‰“å°èƒŒæ™¯
     for(x=0; x<MAXHEIGHT; x++){
         for(y=0; y<MAXWIDTH; y++){
             if(y==0 || y==MAXWIDTH-1 || x==0 || x==MAXHEIGHT-1){
@@ -226,7 +226,7 @@ void init(){
         printf("\n");
     }
 
-    //³õÊ¼»¯Ì°³ÔÉß
+    //åˆå§‹åŒ–è´ªåƒè›‡
     globalMap[xCenter][yCenter-1].type = globalMap[xCenter][yCenter].type = globalMap[xCenter][yCenter+1].type = charSnake.type;
 
     headerIndex = (xCenter-1)*(MAXWIDTH-2)+(yCenter-1) - 1;
@@ -236,10 +236,10 @@ void init(){
     for(y = yCenter-1; y<=yCenter+1; y++){
         printf("%s", charSnake.ch);
     }
-    //Éú³ÉÊ³Îï
+    //ç”Ÿæˆé£Ÿç‰©
     createFood();
 
-    //ÉèÖÃ³ÌĞòĞÅÏ¢
+    //è®¾ç½®ç¨‹åºä¿¡æ¯
     setPosition(xCenter-1, MAXWIDTH+2);
     printf("   Apples : 0");
     setPosition(xCenter, MAXWIDTH+2);
