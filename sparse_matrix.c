@@ -8,7 +8,7 @@ typedef struct {
     triple data[number];
     int n,m,num;
 }TSMatrix;
-//Êä³ö´æ´¢µÄÏ¡Êè¾ØÕó
+
 void display(TSMatrix M);
 int main() {
     TSMatrix M;
