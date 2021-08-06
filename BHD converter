@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+int top=-1;
+void push(char * a,char elem){
+    a[++top]=elem;
+}
+void pop(char * a){
+    if (top == -1)
+        return;
+    if(a[top] >= 10){
+        printf("%c", a[top] + 55);
+    }
+    else{
+        printf("%d", a[top]);
+    }
+    top--;
+}
+
+int scaleFun(char * data,int system){
+    int k=(int)strlen(data)-1;//strlen is unsigned int
+    int system_10_data=0;
+    int i;
+    for (i=k; i>=0; i--) {
+        int temp;
+        if (data[i]>=48 && data[i]<=57) {
+            temp=data[i]-48;
+        }else{
+            temp=data[i]-55;
+        }
+        system_10_data += temp*pow(system, k-i);
+    }
+    return system_10_data;
+}
+int main() {
+    char data[100];
+    printf("Hexadecimal converter, please enter the hexadecimal of the original data(2-36)：:");
+    int system;
+    scanf("%d",&system);
+    getchar();
+    printf("Please enter the data to convert：");
+    scanf("%s",data);
+    getchar();
+    int system_10_data=scaleFun(data, system);
+    printf("Please enter the hexadecimal of the converted data：");
+    int newSystem;
+    scanf("%d",&newSystem);
+    getchar();
+    while(system_10_data / newSystem){
+        push(data, system_10_data % newSystem);
+        system_10_data /= newSystem;
+    };
+    push(data, system_10_data % newSystem);
+    printf("The converted result is"：\n");
+    while (top!=-1) {
+        pop(data);
+    }
+}
